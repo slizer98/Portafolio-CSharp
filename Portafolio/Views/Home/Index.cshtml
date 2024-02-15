@@ -1,9 +1,11 @@
-﻿@{
+﻿@model Persona
+
+@{
     ViewData["Title"] = "Home Page";
 }
 
 <div class="text-center">
-    <h1 class="display-4">Soy Erick Villafuerte</h1>
+    <h1 class="display-4">Soy @Model.Nombre (@Model.Edad)</h1>
     <h2>Soy un desarrollador full stack especializado en tecnologías javascript y aprendiendo .NET.</h2>
     <img 
         src="~/imagenes/perfil_Erick.jpg" 

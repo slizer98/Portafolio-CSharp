@@ -15,11 +15,13 @@ namespace Portafolio.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            var persona = new Persona { Nombre = "Erick Villafuerte", Edad = 25 };
+            return View(persona);
         }
 
         public IActionResult Privacy()
         {
+            
             return View();
         }
 
