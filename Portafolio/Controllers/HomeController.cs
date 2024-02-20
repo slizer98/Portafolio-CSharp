@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Portafolio.Models;
+using Portafolio.Servicios;
 using System.Diagnostics;
 
 namespace Portafolio.Controllers
@@ -7,63 +8,61 @@ namespace Portafolio.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly IRepositorioProyectos repositorioProyectos;
+        private readonly IServicioEmail servicioEmail;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController
+            (
+            ILogger<HomeController> logger, 
+            IRepositorioProyectos repositorioProyectos,
+            IServicioEmail servicioEmail
+            )
         {
             _logger = logger;
+            this.repositorioProyectos = repositorioProyectos;
+            this.servicioEmail = servicioEmail;
         }
 
         public IActionResult Index()
         {
-            var proyectos = ObtenerProyectos().Take(3).ToList();
+            _logger.LogInformation("Este es un mensaje de log");
+            var proyectos = repositorioProyectos.ObtenerProyectos().Take(3).ToList();
             var modelo = new HomeIndexViewModel() { Proyectos = proyectos };
             return View(modelo);
         }
 
-        private List<Proyecto> ObtenerProyectos()
-        {
-            return new List<Proyecto> (){ 
-                new Proyecto
-                    {
-                        Titulo = "Amazon",
-                        Descripcion = "E-commerce realizado en ASP.NET Core",
-                        Link = "https://amazon.com",
-                        ImagenURL = "/imagenes/amazon.png"
-                    },
-                new Proyecto
-                    {
-                        Titulo = "New York Times",
-                        Descripcion = "Página de noticias en Vue",
-                        Link = "https://nytimes.com",
-                        ImagenURL = "/imagenes/nytimes.png"
-                    },
-                new Proyecto
-                    {
-                        Titulo = "Reddit",
-                        Descripcion = "Red social para compartir en comunidades",
-                        Link = "https://reddit.com",
-                        ImagenURL = "/imagenes/reddit.png"
-                    },
-                new Proyecto
-                    {
-                        Titulo = "Steam",
-                        Descripcion = "Tienda en linea para comprar videojuegos",
-                        Link = "https://store.steampowered.com",
-                        ImagenURL = "/imagenes/steam.png"
-                    },
-            };
-        }
+       
 
-        public IActionResult Privacy()
+        public IActionResult Proyectos()
         {
-            
-            return View();
+            var proyectos = repositorioProyectos.ObtenerProyectos();
+            return View(proyectos);
+
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        [HttpGet]
+        public IActionResult Contacto ()
+        {
+            
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Contacto(ContactoViewModel contactoViewModel)
+        {
+            await servicioEmail.Enviar(contactoViewModel);
+            return RedirectToAction("Gracias");
+        }
+
+        public IActionResult Gracias()
+        {
+            return View();
         }
     }
 }
